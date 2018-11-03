@@ -18,8 +18,6 @@ let users = {
     },
 };
 
-const me = users[1];
-
 const schema = gql`
     type Query {
         me: User
@@ -34,7 +32,7 @@ const schema = gql`
 `;
 const resolvers = {
     Query: {
-        me: () => {
+        me: (parent, args, { me }) => {
             return me;
         },
         user: (root, {id}) => {
@@ -53,7 +51,10 @@ const resolvers = {
 
 const server = new ApolloServer({
    typeDefs: schema,
-   resolvers
+   resolvers,
+   context: {
+       me: users[1]
+   }
 });
 
 server.applyMiddleware({
