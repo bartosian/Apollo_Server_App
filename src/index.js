@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import cors from 'cors';
+import uuidv4 from 'uuid/v4';
 
 import express from 'express';
 import { ApolloServer, gql } from 'apollo-server-express';
@@ -53,6 +54,12 @@ const schema = gql`
         text: String!
         user: User!
     }
+    
+    type Mutation {
+        createMessage(text: String!): Message!
+        deleteMessage(id: ID!): Boolean!
+        updateMessage(id: ID! text: String!): Message!
+    }
 `;
 const resolvers = {
     Query: {
@@ -85,9 +92,44 @@ const resolvers = {
     },
     Message: {
         user: (root, args, {me}) => {
-           return users[root.id];
+           return users[root.userId];
     }
+    },
+    Mutation: {
+        createMessage: (root, { text }, { me }) => {
+            const id = uuidv4();
+            const message = {
+                id,
+                userId: me.id,
+                text
+            };
+
+            messages[id] = message;
+            users[me.id].messageIds.push(id);
+
+            return message;
+        },
+        deleteMessage: (parent, { id }) => {
+            const { [id]: message, ...otherMessages } = messages;
+
+            if (!message) {
+                return false;
+            }
+
+            messages = otherMessages;
+
+            return true;
+        },
+        updateMessage: (root, { id, text }, { me })=> {
+            messages[id].text = text;
+
+            return {
+                ...messages[id]
+            }
+        }
+
     }
+
 };
 
 const server = new ApolloServer({
