@@ -6,10 +6,22 @@ export default gql`
     user(id: ID!): User
     me: User
   }
+  
+  extend type Mutation {
+    signUp(
+      username: String!
+      email: String!
+      password: String!
+    ): Token!
+  }
+  
+  type Token {
+    token: String!
+  }
 
   type User {
     id: ID!
-    username: String! @constraint(pattern: "^[0-9a-zA-Z]*$", maxLength: 255)
+    email: String!
     messages: [Message!]
   }
 `;
