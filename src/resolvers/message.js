@@ -1,4 +1,7 @@
 import { ForbiddenError } from 'apollo-server';
+import { combineResolvers } from 'graphql-resolvers';
+
+import { isAuthenticated, isMessageOwner } from './authorization';
 
 export default {
     Query: {
@@ -11,29 +14,22 @@ export default {
     },
 
     Mutation: {
-        createMessage: async (parent, { text }, { me, models }) => {
-            try {
-                if (!me) {
-                    throw new ForbiddenError('Not authenticated as user.');
-                }
-
-                return await models.Message.cretae({
+        createMessage: combineResolvers(
+            isAuthenticated,
+            async (parent, { text }, { models, me }) => {
+                return await models.Message.create({
                     text,
-                    userId: me.id
-                })
-            } catch(err) {
-                throw new Error(error);
-            }
+                    userId: me.id,
+                });
+            },
+        ),
 
-        },
-
-        deleteMessage: async (parent, { id }, { models }) => {
-            return await models.Message.destroy({
-                where: {
-                    id
-                }
-            });
-        },
+        deleteMessage: combineResolvers(
+            isMessageOwner,
+            async (parent, { id }, { models }) => {
+                return await models.Message.destroy({ where: { id } });
+            },
+        ),
     },
     Message: {
         user: async (message, args, { models }) => {
