@@ -1,3 +1,4 @@
+import { ForbiddenError } from 'apollo-server';
 
 export default {
     Query: {
@@ -12,6 +13,10 @@ export default {
     Mutation: {
         createMessage: async (parent, { text }, { me, models }) => {
             try {
+                if (!me) {
+                    throw new ForbiddenError('Not authenticated as user.');
+                }
+
                 return await models.Message.cretae({
                     text,
                     userId: me.id

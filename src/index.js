@@ -35,11 +35,15 @@ const server = new ApolloServer({
    typeDefs: schema,
    resolvers,
     schemaDirectives: { constraint: ConstraintDirective },
-   context: async () => ({
-       models,
-       me: await models.User.findByLogin('rwieruch'),
-       secret: process.env.SECRET,
-   })
+    context: async ({ req }) => {
+        const me = await getMe(req);
+
+        return {
+            models,
+            me,
+            secret: process.env.SECRET,
+        };
+    },
 });
 
 server.applyMiddleware({
