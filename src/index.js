@@ -1,13 +1,31 @@
 
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
 
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
+import {
+    ApolloServer,
+    AuthenticationError
+} from 'apollo-server-express';
 const ConstraintDirective = require('graphql-constraint-directive')
 
 import schema from './schema';
 import resolvers from './resolvers';
 import models, { sequelize } from './models';
+
+const getMe = async req => {
+    const token = req.headers['x-token'];
+
+    if (token) {
+        try {
+            return await jwt.verify(token, process.env.SECRET);
+        } catch (e) {
+            throw new AuthenticationError(
+                'Your session expired. Sign in again.',
+            );
+        }
+    }
+};
 
 const app = express();
 app.use(cors());
