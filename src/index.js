@@ -19,7 +19,8 @@ const server = new ApolloServer({
     schemaDirectives: { constraint: ConstraintDirective },
    context: async () => ({
        models,
-       me: await models.User.findByLogin('rwieruch')
+       me: await models.User.findByLogin('rwieruch'),
+       secret: process.env.SECRET,
    })
 });
 

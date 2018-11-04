@@ -1,5 +1,9 @@
-const createToken = async (user) => {
+import jwt from 'jsonwebtoken';
 
+
+const createToken = async (user, secret, expiresIn) => {
+    const { id, email, username } = user;
+    return await jwt.sign({ id, email, username }, secret, { expiresIn });
 };
 
 
@@ -20,7 +24,7 @@ export default {
         signUp: async (
             parent,
             { username, email, password },
-            { models },
+            { models, secret },
         ) => {
             const user = await models.User.create({
                 username,
@@ -28,7 +32,7 @@ export default {
                 password,
             });
 
-            return { token: createToken(user) };
+            return { token: createToken(user, secret, "30m") };
         },
     },
 
