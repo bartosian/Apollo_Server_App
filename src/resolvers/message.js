@@ -11,10 +11,15 @@ export default {
 
     Mutation: {
         createMessage: async (parent, { text }, { me, models }) => {
-           return await models.Message.cretae({
-               text,
-               userId: me.id
-           })
+            try {
+                return await models.Message.cretae({
+                    text,
+                    userId: me.id
+                })
+            } catch(err) {
+                throw new Error(error);
+            }
+
         },
 
         deleteMessage: async (parent, { id }, { models }) => {

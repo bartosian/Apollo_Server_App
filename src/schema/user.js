@@ -9,7 +9,7 @@ export default gql`
 
   type User {
     id: ID!
-    username: String!
+    username: String! @constraint(pattern: "^[0-9a-zA-Z]*$", maxLength: 255)
     messages: [Message!]
   }
 `;

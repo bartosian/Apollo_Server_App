@@ -3,6 +3,7 @@ import cors from 'cors';
 
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
+const ConstraintDirective = require('graphql-constraint-directive')
 
 import schema from './schema';
 import resolvers from './resolvers';
@@ -15,6 +16,7 @@ app.use(cors());
 const server = new ApolloServer({
    typeDefs: schema,
    resolvers,
+    schemaDirectives: { constraint: ConstraintDirective },
    context: async () => ({
        models,
        me: await models.User.findByLogin('rwieruch')
